@@ -8,8 +8,8 @@
 | Challenge | T09 · Multi-Market Privacy Decision Gate |
 | Thành viên + vai trò | Làm cá nhân: Nguyễn Thị Hồng Hạnh (Walnut) đảm nhiệm toàn bộ vai trò Lead, Data, Core algorithm, QA/metric, Review + report |
 | Git URL | https://github.com/walnut1712/K5-Day6-L2B-NguyenThiHongHanh-2a302603272-DataGovernanceAndPrivacy |
-| Tag `demo-180m` (commit) | <điền sau khi tag> |
-| Tag `final-24h` (commit) | <điền sau khi tag> |
+| Tag `demo-180m` (commit) | `demo-180m` · `6a8506790ce1e9d454ebdb3095809511955d8e16` |
+| Tag `final-24h` (commit) | `final-24h` · `42e19b3f083aef895c2e1ca18b71ab32e59f7d07` |
 
 ## 01 · Problem & decision
 
@@ -94,8 +94,8 @@ python -m venv .venv ; .venv\Scripts\python.exe -m pip install -r requirements.t
 .venv\Scripts\python.exe -m pytest -q
 ```
 
-- `pytest -q`: 0 failed (các test cần `gt/` được skip theo thiết kế); 6 test của nhóm trong `tests/test_t09_team.py` (success và failure/edge).
-- Python 3.13.17, Windows; git sha: <điền>.
+- `pytest -q`: 0 failed (các test cần `gt/` được skip theo thiết kế); 8 test của nhóm trong `tests/test_t09_team.py` (success và failure/edge).
+- Python 3.13.17, Windows; git sha: `42e19b3f083aef895c2e1ca18b71ab32e59f7d07`.
 - Lưu ý: `audit_log.jsonl` là append-only nên cần xóa trước khi chạy lại PoC.
 
 ## 09 · Limitations & ethics
@@ -112,7 +112,7 @@ Lab làm cá nhân. Hai tác giả còn lại trong `git shortlog` là commit c�
 
 | Học viên | Git author/email | Module / vai trò | Commit SHA | Trình bày? |
 |---|---|---|---|---|
-| Nguyễn Thị Hồng Hạnh | Walnut / s4020232@rmit.edu.vn | Toàn bộ: policy engine, baseline, review, audit, tests, report | <điền> | có |
+| Nguyễn Thị Hồng Hạnh | Walnut / s4020232@rmit.edu.vn | Toàn bộ: policy engine, baseline, review, audit, tests, report | `42e19b3f083aef895c2e1ca18b71ab32e59f7d07` | có |
 
 ## 11 · References
 
@@ -128,5 +128,5 @@ Lab làm cá nhân. Hai tác giả còn lại trong `git shortlog` là commit c�
 - [x] Input mẫu không chứa PII thật.
 - [x] 1 lệnh run, 1 lệnh evaluate (giảng viên chạy), 1 lệnh tests; chạy offline.
 - [x] Có baseline và PoC, 2 failure case, reviewer evidence, decision log.
-- [ ] Tag cuối cùng và SHA trong header.
+- [x] Tag cuối cùng và SHA trong header.
 - [x] Tự kiểm có khoảng tin cậy; không có gold của giảng viên.
