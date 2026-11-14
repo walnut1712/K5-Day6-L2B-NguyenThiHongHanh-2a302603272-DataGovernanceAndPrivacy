@@ -72,7 +72,7 @@ def process(ctx: RunContext, data: dict) -> pd.DataFrame:
                 "market": case.get("market", ""),
                 **decision,
                 "reason": decision["reason_codes"].replace(";", "; "),
-                "review_required": decision["decision"] != "GO",
+                "review_required": decision["decision"] != "GO" or "NO_MARKET_RULES" in decision["risk_flags"],
                 "policy_version": data["policy"].get("policy_version", "unspecified"),
                 "case_notes": case.get("ambiguity_notes", ""),
             })

@@ -92,6 +92,7 @@ def decide_case(case: Mapping, policy: Mapping) -> dict:
 
     applicable = []
     market = case.get("market")
+    market_covered = False
     for rule in rules:
         required = ("id", "markets", "when", "decision", "reason_code", "source")
         missing = [key for key in required if key not in rule]
@@ -99,6 +100,8 @@ def decide_case(case: Mapping, policy: Mapping) -> dict:
             raise ValueError(f"privacy policy rule is missing fields {missing}: {rule!r}")
         if "*" not in rule["markets"] and market not in rule["markets"]:
             continue
+        if market in rule["markets"]:
+            market_covered = True
         status = str(rule["decision"]).upper()
         if status not in _DECISION_PRECEDENCE:
             raise ValueError(f"invalid decision {status!r} in rule {rule['id']}")
@@ -113,7 +116,9 @@ def decide_case(case: Mapping, policy: Mapping) -> dict:
     reason_codes = list(dict.fromkeys(rule["reason_code"] for rule in applicable))
     if not reason_codes:
         reason_codes = ["NO_MATCHING_RISK"]
-    risk_flags = list(reason_codes)
+    risk_flags = [c for c in reason_codes if c != "NO_MATCHING_RISK"]
+    if not market_covered:
+        risk_flags.append("NO_MARKET_RULES")
     if (case.get("transfer") or {}).get("cross_border"):
         risk_flags.insert(0, "CROSS_BORDER_TRANSFER")
     sources = [

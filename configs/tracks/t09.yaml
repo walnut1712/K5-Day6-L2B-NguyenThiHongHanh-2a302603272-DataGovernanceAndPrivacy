@@ -4,7 +4,7 @@ track: t09
 input: fixtures/t09_privacy_gate
 pred_file: decisions.csv
 params:
-  policy_file: rules/policy_example.yaml
+  policy_file: ../../configs/policy_t09.yaml
 eval_params:
   split: eval          # official score; use --split all only as a self-check
   max_false_hold: 0.5  # guardrail: primary only valid if false HOLD rate stays below this

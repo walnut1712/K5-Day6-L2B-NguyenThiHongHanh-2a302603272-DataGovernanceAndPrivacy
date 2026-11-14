@@ -1,0 +1,169 @@
+# EXAMPLE STRUCTURE ONLY — not legal advice, not complete, not verified.
+# Every rule must cite its source and be versioned. Ambiguity => HOLD + escalate to DPO/legal.
+policy_version: group-0.2
+effective_date: 2026-11-14
+reason_codes: [XBORDER_NO_MECHANISM, RETENTION_UNBOUNDED, RETENTION_EXCESSIVE, RAW_PII_IN_CLOUD, DPIA_MISSING,
+               NOTICE_MISSING, NO_LAWFUL_BASIS, CONSENT_RECORD_MISSING, MINORS, NO_ENCRYPTION, AMBIGUOUS_NEEDS_LEGAL,
+               CONSENT_INVALID, XBORDER_NO_IMPACT_ASSESSMENT, NO_MATCHING_RISK, SENSITIVE_DATA_REVIEW]
+rules:
+  - id: R-XB-01
+    markets: [EU]
+    when: "transfer.cross_border and transfer.mechanism in [null, 'unknown', 'none']"
+    decision: HOLD
+    reason_code: XBORDER_NO_MECHANISM
+    source: {doc: 'GDPR (EUR-Lex)', ref: 'Chapter V, Art. 44-49', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj'}
+  - id: R-RET-01
+    markets: ['*']
+    when: "retention_days is null"
+    decision: REWORK
+    reason_code: RETENTION_UNBOUNDED
+    source: {doc: 'GDPR (EUR-Lex)', ref: 'Art. 5(1)(e) storage limitation', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj'}
+  - id: R-RET-02
+    markets: ['*']
+    when: "retention_days > 365"
+    decision: REWORK
+    reason_code: RETENTION_EXCESSIVE
+    note: 'Teaching threshold only; confirm purpose, law and retention schedule with privacy counsel.'
+    source: {doc: 'Teaching safeguard (not legal advice)', ref: 'Review retention periods longer than one year'}
+  - id: R-STORE-01
+    markets: ['*']
+    when: "storage.raw_retained and storage.location == 'cloud'"
+    decision: HOLD
+    reason_code: RAW_PII_IN_CLOUD
+    source: {doc: 'Teaching safeguard (not legal advice)', ref: 'Review raw personal data stored in cloud'}
+  - id: R-STORE-02
+    markets: ['*']
+    when: "not storage.encryption_at_rest"
+    decision: HOLD
+    reason_code: NO_ENCRYPTION
+    source: {doc: 'Teaching safeguard (not legal advice)', ref: 'Review storage security controls'}
+  - id: R-CONSENT-01
+    markets: ['*']
+    when: "lawful_basis == 'consent' and not consent.record_available"
+    decision: HOLD
+    reason_code: CONSENT_RECORD_MISSING
+    source: {doc: 'Teaching safeguard (not legal advice)', ref: 'Verify evidence of consent'}
+  - id: R-MINORS-01
+    markets: ['*']
+    when: "minors_possible"
+    decision: HOLD
+    reason_code: MINORS
+    source: {doc: 'Teaching safeguard (not legal advice)', ref: 'Escalate processing involving possible minors'}
+  - id: R-AMBIG-01
+    markets: ['*']
+    when: "ambiguity_notes != ''"
+    decision: HOLD
+    reason_code: AMBIGUOUS_NEEDS_LEGAL
+    source: {doc: 'Teaching safeguard (not legal advice)', ref: 'Escalate unresolved legal or factual ambiguity'}
+  - id: R-EU-01
+    markets: [EU]
+    when: "lawful_basis in ['unknown', 'n/a']"
+    decision: HOLD
+    reason_code: NO_LAWFUL_BASIS
+    source: {doc: 'GDPR (EUR-Lex)', ref: 'Art. 6 lawful basis', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj'}
+  - id: R-EU-02
+    markets: [EU]
+    when: "lawful_basis == 'legitimate_interest' and not lia_done"
+    decision: HOLD
+    reason_code: AMBIGUOUS_NEEDS_LEGAL
+    source: {doc: 'GDPR (EUR-Lex)', ref: 'Art. 6(1)(f), document balancing assessment', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj'}
+  - id: R-EU-03
+    markets: [EU]
+    when: "not dpia_done"
+    decision: HOLD
+    reason_code: DPIA_MISSING
+    source: {doc: 'GDPR (EUR-Lex)', ref: 'Art. 35 DPIA', url: 'https://eur-lex.europa.eu/eli/reg/2016/679/oj'}
+  - id: R-US-01
+    markets: ['US-CA']
+    when: "not notice_given"
+    decision: REWORK
+    reason_code: NOTICE_MISSING
+    source: {doc: 'CCPA/CPRA (California Privacy Protection Agency)', ref: 'Notice at collection; confirm applicability and current requirements'}
+  # VN rules: teaching examples drafted 2026-11-13; article numbers follow the luatvietnam English translation. needs_legal_review before any real use.
+  - id: R-VN-01
+    markets: [VN]
+    when: "lawful_basis not in ['consent', 'contract', 'legal_obligation', 'vital_interest', 'public_task']"
+    decision: HOLD
+    reason_code: NO_LAWFUL_BASIS
+    note: 'VN has no legitimate-interest basis; processing without consent needs one of the listed exceptions.'
+    source: {doc: 'Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15', ref: 'Đ.9 (consent), Đ.19 (cases not requiring consent)', url: 'https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx'}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+  - id: R-VN-05
+    markets: [VN]
+    when: "lawful_basis == 'consent' and not consent.record_available"
+    decision: HOLD
+    reason_code: CONSENT_RECORD_MISSING
+    source: {doc: 'Luật Bảo vệ dữ liệu cá nhân 91/2025/QH15', ref: 'Đ.9 consent evidence; confirm with DPO/legal'}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+  - id: R-VN-02
+    markets: [VN]
+    when: "transfer.cross_border and not transfer.transfer_impact_assessment"
+    decision: HOLD
+    reason_code: XBORDER_NO_IMPACT_ASSESSMENT
+    note: 'Cross-border transfer impact-assessment dossier must be prepared and filed with the authority within 60 days.'
+    source: {doc: 'Luật 91/2025/QH15 + Nghị định 356/2025/NĐ-CP', ref: 'Luật 91 Đ.21 (transfer impact assessment); NĐ 356 dossier rules', url: 'https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx'}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+  - id: R-VN-03
+    markets: [VN]
+    when: "not dpia_done"
+    decision: HOLD
+    reason_code: DPIA_MISSING
+    source: {doc: 'Luật 91/2025/QH15 + Nghị định 356/2025/NĐ-CP', ref: 'Luật 91 Đ.20 (processing impact assessment, filed within 60 days), Đ.22 (update within 6 months of a change)', url: 'https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx'}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+  - id: R-VN-04
+    markets: [VN]
+    when: "lawful_basis == 'consent' and (not consent.granular or not consent.withdrawable)"
+    decision: REWORK
+    reason_code: CONSENT_INVALID
+    note: 'Silence, pre-ticked boxes or bundled consent are not valid consent; consent must be specific and withdrawable.'
+    source: {doc: 'Luật 91/2025/QH15', ref: 'Đ.9 (consent must be voluntary, explicit, specific; silence is not consent), Đ.10 (withdrawal)', url: 'https://thuvienphapluat.vn/van-ban/Bo-may-hanh-chinh/Luat-Bao-ve-du-lieu-ca-nhan-2025-so-91-2025-QH15-625628.aspx'}
+    version_date: 2026-11-13
+    confidence: medium
+    needs_legal_review: true
+  # SG rules: drafted 2026-11-14, teaching examples. Section numbers MUST be verified against the PDPA text.
+  - id: R-SG-01
+    markets: [SG]
+    when: "lawful_basis == 'legitimate_interest' and not li_assessment_done"
+    decision: HOLD
+    reason_code: AMBIGUOUS_NEEDS_LEGAL
+    source: {doc: 'Singapore PDPA 2012 (as amended 2020)', ref: 'Legitimate interests exception requires an assessment; verify provision'}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+  - id: R-SG-02
+    markets: [SG]
+    when: "transfer.cross_border and transfer.mechanism in [null, 'unknown', 'none']"
+    decision: HOLD
+    reason_code: XBORDER_NO_MECHANISM
+    source: {doc: 'Singapore PDPA 2012', ref: 'Transfer Limitation Obligation; verify provision'}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+  - id: R-SG-03
+    markets: [SG]
+    when: "not notice_given"
+    decision: REWORK
+    reason_code: NOTICE_MISSING
+    source: {doc: 'Singapore PDPA 2012', ref: 'Notification Obligation; verify provision'}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
+  # Added AFTER observing CASE-11 (eval split). Disclose this in the report.
+  - id: R-US-02
+    markets: ['US-CA']
+    when: "'precise_location' in data_types"
+    decision: HOLD
+    reason_code: SENSITIVE_DATA_REVIEW
+    note: 'Precise geolocation is sensitive personal information under CPRA; confirm applicability with counsel.'
+    source: {doc: 'CCPA/CPRA (California Privacy Protection Agency)', ref: 'Sensitive personal information and right to limit; verify provision'}
+    version_date: 2026-11-14
+    confidence: low
+    needs_legal_review: true
