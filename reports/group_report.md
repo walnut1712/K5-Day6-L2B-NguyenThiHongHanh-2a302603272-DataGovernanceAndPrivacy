@@ -9,7 +9,7 @@
 | Thành viên + vai trò | Nhóm 1 làm cá nhân: Nguyễn Thị Hồng Hạnh (Walnut) đảm nhiệm Lead, Data, Core algorithm, QA/metric, Review + report |
 | Git URL | https://github.com/walnut1712/K5-Day6-L2B-NguyenThiHongHanh-2a302603272-DataGovernanceAndPrivacy |
 | Tag `demo-180m` (commit) | `demo-180m` · `6a8506790ce1e9d454ebdb3095809511955d8e16` |
-| Tag `final-24h` (commit) | `final-24h` · `42e19b3f083aef895c2e1ca18b71ab32e59f7d07` |
+| Tag `final-24h` (commit) | `final-24h` · `b07e92b92c6fff6559e241d591bf51f1afa5d866` |
 
 ## 01 · Problem & decision
 
