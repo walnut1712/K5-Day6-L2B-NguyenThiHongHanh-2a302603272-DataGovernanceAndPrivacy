@@ -1,6 +1,4 @@
 member,git_author_name,git_email,role,modules_files,commit_shas,evidence_note,presenter
-Member 1,,,Lead / Integrator,src/main.py; configs/,,,
-Member 2,,,Data & fixtures,fixtures/; tools/,,,
-Member 3,,,Core algorithm,src/pipeline.py,,,
-Member 4,,,QA / metric,tests/; reports/metrics_*.json,,,
-Member 5,,,Human review + report,reports/group_report.md; demo/,,,
+Member 1 (solo),Walnut,s4020232@rmit.edu.vn,"Solo: lead, data, algorithm, QA, review, report",src/privacy_gate.py; src/pipeline.py; src/examples/t09_hold_all_baseline.py; configs/policy_t09.yaml; tests/test_t09_team.py; reports/,<SHA1;SHA2;SHA3>,Lab làm cá nhân; mọi module T09 do một người thực hiện,yes
+Upstream template,loversky02,bao232030333@lms.utc.edu.vn,Template (không phải thành viên),starter repo,<xác nhận bằng git log>,Commit có sẵn từ repo template của giảng viên,no
+Upstream template,Tin Duong,26454564+ivo-gilles@users.noreply.github.com,Template (không phải thành viên),starter repo,<xác nhận bằng git log>,Commit có sẵn từ repo template của giảng viên,no
