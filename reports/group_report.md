@@ -4,9 +4,9 @@
 
 | Mục | Giá trị |
 |---|---|
-| Group ID | <điền từ configs/lab.yaml> |
+| Group ID | none |
 | Challenge | T09 · Multi-Market Privacy Decision Gate |
-| Thành viên + vai trò | Làm cá nhân: Nguyễn Thị Hồng Hạnh (Walnut) đảm nhiệm toàn bộ vai trò Lead, Data, Core algorithm, QA/metric, Review + report |
+| Thành viên + vai trò | Nhóm 1 làm cá nhân: Nguyễn Thị Hồng Hạnh (Walnut) đảm nhiệm Lead, Data, Core algorithm, QA/metric, Review + report |
 | Git URL | https://github.com/walnut1712/K5-Day6-L2B-NguyenThiHongHanh-2a302603272-DataGovernanceAndPrivacy |
 | Tag `demo-180m` (commit) | `demo-180m` · `6a8506790ce1e9d454ebdb3095809511955d8e16` |
 | Tag `final-24h` (commit) | `final-24h` · `42e19b3f083aef895c2e1ca18b71ab32e59f7d07` |
@@ -76,7 +76,7 @@ HOLD-all đạt critical-miss 0 nhưng fail guardrail nên primary của nó kh�
 
 - **Failure case 1 (bắt buộc của T09):** kết luận hợp pháp chỉ dựa vào consent bỏ sót chuyển dữ liệu xuyên biên giới. CASE-02 (EU, `transfer.mechanism = null`) và CASE-07 (VN, chưa có `transfer_impact_assessment`) đều bị baseline cho GO. Root cause: baseline không đọc trường `transfer`. PoC bắt bằng R-XB-01 và R-VN-02, `risk_flags` có `CROSS_BORDER_TRANSFER`.
 - **Failure case 2 (điểm yếu của chính PoC):** CASE-06 (SG) ban đầu GO vì không có rule SG nào, tức GO do thiếu luật chứ không phải đã kiểm chứng. CASE-11 chỉ HOLD nhờ `ambiguity_notes`, không rule nào xét `precise_location`. Xử lý: thêm rule SG và R-US-02, thêm cờ `NO_MARKET_RULES`, và reviewer `escalate` CASE-06. Các rule này thêm sau khi quan sát CASE-06 và CASE-11, số điều khoản chưa đối chiếu văn bản gốc.
-- Latency: khoảng 0,03 giây cho 12 case; máy/CPU: <điền>.
+- Latency PoC: 0,0368 giây cho 12 case (`out/poc/run_info.json`); máy: Windows 11, Python 3.13.17, Intel Core Ultra 7 255HX.
 
 ## 07 · Human & decision
 
@@ -112,7 +112,7 @@ Lab làm cá nhân. Hai tác giả còn lại trong `git shortlog` là commit c�
 
 | Học viên | Git author/email | Module / vai trò | Commit SHA | Trình bày? |
 |---|---|---|---|---|
-| Nguyễn Thị Hồng Hạnh | Walnut / s4020232@rmit.edu.vn | Toàn bộ: policy engine, baseline, review, audit, tests, report | `42e19b3f083aef895c2e1ca18b71ab32e59f7d07` | có |
+| Nguyễn Thị Hồng Hạnh | Walnut / s4020232@rmit.edu.vn | Toàn bộ: policy engine, baseline, review, audit, tests, report | `e33c767a4e10d8091fccf83cdf5cb99bb9f8c64e`; `e97f2e9626c440f30964693a4882799a2e8ee0d0`; `42e19b3f083aef895c2e1ca18b71ab32e59f7d07` | có |
 
 ## 11 · References
 

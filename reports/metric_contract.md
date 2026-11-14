@@ -1,4 +1,4 @@
-# Metric contract (khai báo bắt buộc — chốt trước khi chạy eval)
+# Metric contract (định nghĩa metric và protocol)
 
 > Các metric chuẩn đã được cài trong `src/metrics/tracks.py`. File này là nơi nhóm **cam kết** cách dùng chúng.
 > Không đổi testset, threshold hay trọng số sau khi đã thấy kết quả eval.
@@ -19,7 +19,7 @@
 | Chỉ số lỗi xấu | **Miss** = case rủi ro bị cho GO (critical miss, lỗi nghiêm trọng nhất). **False alarm** = case an toàn bị HOLD (false HOLD rate, guardrail ≤ 0.5). Primary chỉ hợp lệ khi guardrail PASS. |
 | Slices sẽ báo cáo (≥2) | (1) theo thị trường: VN / EU / US-CA / SG / IN. (2) theo loại rủi ro: chuyển dữ liệu xuyên biên giới (CASE-02, 07, 10) so với còn lại. (3) dev so với eval. |
 | Cách báo độ bất định khi N nhỏ | N=4 nên báo **từng case** kèm khoảng tin cậy Wilson 95% cho critical-miss và false HOLD. Không diễn giải phần trăm như số ổn định. |
-| Ngày giờ chốt + người chốt | 2026-11-14, [giờ] · [tên người chốt] |
+| Ngày giờ ghi nhận + người phụ trách | 2026-11-14 17:08 +07:00 · Nguyễn Thị Hồng Hạnh (ghi nhận hồi tố; fixture eval đã được xem, không phải pre-registration) |
 
 ## Baseline (khai báo cùng contract)
 - **Baseline chính** (`src.examples.t09_consent_baseline`): GO nếu có consent hoặc lawful basis khác `unknown`. Sai có chủ ý, dùng để chứng minh checklist chỉ dựa vào consent là không đủ.
