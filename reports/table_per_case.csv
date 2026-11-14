@@ -1,0 +1,13 @@
+case_id,split,market,consent_baseline,hold_all,poc,poc_review_required,team_risk_label
+CASE-01,dev,VN,GO,HOLD,HOLD,True,
+CASE-02,dev,EU,GO,HOLD,HOLD,True,
+CASE-03,dev,VN,GO,HOLD,HOLD,True,
+CASE-04,dev,EU,GO,HOLD,HOLD,True,
+CASE-05,dev,US-CA,GO,HOLD,REWORK,True,
+CASE-06,dev,SG,GO,HOLD,GO,True,
+CASE-07,dev,VN,GO,HOLD,HOLD,True,
+CASE-08,dev,EU,HOLD,HOLD,HOLD,True,
+CASE-09,eval,IN,GO,HOLD,HOLD,True,
+CASE-10,eval,EU,GO,HOLD,GO,False,
+CASE-11,eval,US-CA,GO,HOLD,HOLD,True,
+CASE-12,eval,VN,GO,HOLD,HOLD,True,

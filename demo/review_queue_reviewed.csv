@@ -1,0 +1,13 @@
+rank,item_id,score,reason,suggested_action,slice,evidence_path,reviewer,reviewer_decision,override_value,review_note,reviewed_at
+1,CASE-01,1.0,NO_LAWFUL_BASIS,,,,Nguyen Thi Hong Hanh,approve,,Xác nhận HOLD: VN không có căn cứ lợi ích hợp pháp.,
+2,CASE-02,1.0,XBORDER_NO_MECHANISM,,,,Nguyen Thi Hong Hanh,approve,,"Xác nhận HOLD: chuyển dữ liệu ra ngoài, chưa có cơ chế chuyển.",
+3,CASE-03,1.0,RETENTION_UNBOUNDED; RAW_PII_IN_CLOUD; CONSENT_INVALID,,,,Nguyen Thi Hong Hanh,approve,,"Xác nhận HOLD: lưu thô trên cloud, retention không giới hạn, consent gộp.",
+4,CASE-04,1.0,AMBIGUOUS_NEEDS_LEGAL; DPIA_MISSING,,,,Nguyen Thi Hong Hanh,approve,,"Xác nhận HOLD: thiếu DPIA, chưa rõ đánh giá LIA.",
+5,CASE-07,1.0,XBORDER_NO_IMPACT_ASSESSMENT,,,,Nguyen Thi Hong Hanh,approve,,Xác nhận HOLD: VN chuyển dữ liệu ra ngoài chưa có hồ sơ đánh giá tác động.,
+6,CASE-08,1.0,AMBIGUOUS_NEEDS_LEGAL; NO_LAWFUL_BASIS,,,,Nguyen Thi Hong Hanh,approve,,"Xác nhận HOLD: căn cứ pháp lý chưa rõ, vendor processor/joint controller chưa xác định.",
+7,CASE-09,1.0,CONSENT_RECORD_MISSING; MINORS; AMBIGUOUS_NEEDS_LEGAL,,,,Nguyen Thi Hong Hanh,escalate,,IN: DPDP hiệu lực 13/05/2027 (luật sắp hiệu lực); có thể có trẻ vị thành niên; chưa có rule IN.,
+8,CASE-11,1.0,AMBIGUOUS_NEEDS_LEGAL; SENSITIVE_DATA_REVIEW,,,,Nguyen Thi Hong Hanh,escalate,,Chưa rõ ngưỡng covered-business CCPA; có dữ liệu vị trí chính xác.,
+9,CASE-12,1.0,RETENTION_EXCESSIVE; RAW_PII_IN_CLOUD; NO_ENCRYPTION; NO_LAWFUL_BASIS,,,,Nguyen Thi Hong Hanh,approve,,"Xác nhận HOLD: retention quá dài, không mã hóa, lưu thô trên cloud.",
+10,CASE-05,0.7,NOTICE_MISSING,,,,Nguyen Thi Hong Hanh,approve,,"Xác nhận REWORK: bổ sung notice at collection, cần DPO xác nhận áp dụng CCPA.",
+11,CASE-06,0.0,NO_MATCHING_RISK,,,,Nguyen Thi Hong Hanh,escalate,,GO chỉ vì rule SG chưa kiểm chứng (confidence low); cần legal xem trước khi chấp nhận.,
+12,CASE-10,0.0,NO_MATCHING_RISK,,,,Nguyen Thi Hong Hanh,approve,,"Chấp nhận GO: có adequacy, TIA, LIA và DPIA; vẫn ghi nhận có chuyển dữ liệu.",
