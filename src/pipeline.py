@@ -98,17 +98,63 @@ def rank(ctx: RunContext, scored: pd.DataFrame) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- 04 review
 def review(ctx: RunContext, scored: pd.DataFrame, queue: pd.DataFrame) -> pd.DataFrame:
-    """If a reviewed queue exists (out/review_queue_reviewed.csv), apply it. Otherwise pass through.
+    """Apply T09 reviewer decisions and append each reviewed case to the audit log.
 
-    TODO: decide what an `edit` / `reject` means for your track and apply it
-    (e.g. via common.review.apply_overrides), logging every change to ctx.audit.
+    approve and skip preserve the policy decision; escalate requires DPO/legal review.
+    edit and reject require an explicit GO/HOLD/REWORK override.
     """
+    final = scored.copy()
+    for col in ("reviewer", "reviewer_decision", "review_note"):
+        final[col] = ""
+
     reviewed_path = ctx.output_dir / "review_queue_reviewed.csv"
-    if reviewed_path.exists():
-        reviewed = load_review_decisions(reviewed_path)
-        ctx.stats["n_reviewed"] = len(reviewed)
-        # TODO: apply overrides
-    return scored
+    if not reviewed_path.exists():
+        return final
+
+    reviewed = load_review_decisions(reviewed_path)
+    ctx.stats["n_reviewed"] = len(reviewed)
+    valid_statuses = {"GO", "HOLD", "REWORK"}
+    seen_items = set()
+    for _, row in reviewed.iterrows():
+        item_id = str(row["item_id"])
+        if item_id in seen_items:
+            raise ValueError(f"review: duplicate reviewer decision for case_id {item_id!r}")
+        seen_items.add(item_id)
+
+        indices = final.index[final["case_id"].astype(str) == item_id]
+        if len(indices) != 1:
+            raise ValueError(f"review: unknown case_id {item_id!r}")
+        index = indices[0]
+        action = row["reviewer_decision"]
+        reviewer = row["reviewer"].strip()
+        note = row["review_note"].strip()
+        before = str(final.at[index, "decision"])
+        after = before
+
+        if action in ("edit", "reject"):
+            override = row["override_value"].strip().upper()
+            if override not in valid_statuses:
+                raise ValueError(
+                    f"review: {action} for {item_id} needs override_value in "
+                    f"{sorted(valid_statuses)}, got {override!r}"
+                )
+            after = override
+            final.at[index, "decision"] = after
+        elif action == "escalate":
+            final.at[index, "review_required"] = True
+
+        final.at[index, "reviewer"] = reviewer
+        final.at[index, "reviewer_decision"] = action
+        final.at[index, "review_note"] = note
+        ctx.audit.log(
+            actor=reviewer,
+            action=f"review_{action}",
+            item_id=item_id,
+            before=before,
+            after=after,
+            reason=note,
+        )
+    return final
 
 
 # ---------------------------------------------------------------- 05 decide

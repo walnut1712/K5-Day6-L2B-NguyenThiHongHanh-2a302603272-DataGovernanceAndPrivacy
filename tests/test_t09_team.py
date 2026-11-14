@@ -1,4 +1,6 @@
 """Team tests for T09 Privacy Decision Gate (success + failure/edge)."""
+import json
+
 import pandas as pd
 import pytest
 
@@ -67,3 +69,33 @@ def test_review_decisions_are_applied_and_audited(tmp_path):
     d = pd.read_csv(tmp_path / "decisions.csv").set_index("case_id")
     assert d.loc["CASE-06", "decision"] == "GO"
     assert bool(d.loc["CASE-06", "review_required"]) is True
+
+
+def test_hold_all_baseline_module_runs(tmp_path):
+    rc = runner.main(BASE + [
+        "--pipeline", "src.baseline_hold_all",
+        "--output", str(tmp_path),
+    ])
+    assert rc == 0
+    decisions = pd.read_csv(tmp_path / "decisions.csv")
+    assert len(decisions) == 12
+    assert set(decisions["decision"]) == {"HOLD"}
+
+
+def test_reviewer_override_updates_decision_and_audit(tmp_path):
+    assert run_poc(tmp_path) == 0
+    queue = pd.read_csv(tmp_path / "review_queue.csv", dtype=str, keep_default_na=False)
+    queue["reviewer"] = "Test Reviewer"
+    queue.loc[queue["item_id"] == "CASE-10", "reviewer_decision"] = "reject"
+    queue.loc[queue["item_id"] == "CASE-10", "override_value"] = "HOLD"
+    queue.to_csv(tmp_path / "review_queue_reviewed.csv", index=False)
+
+    assert run_poc(tmp_path) == 0
+    decisions = pd.read_csv(tmp_path / "decisions.csv").set_index("case_id")
+    assert decisions.loc["CASE-10", "decision"] == "HOLD"
+    events = [
+        json.loads(line)
+        for line in (tmp_path / "audit_log.jsonl").read_text(encoding="utf-8").splitlines()
+    ]
+    override = next(event for event in events if event["item_id"] == "CASE-10")
+    assert override["before"] == "GO" and override["after"] == "HOLD"
