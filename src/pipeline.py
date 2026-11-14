@@ -17,13 +17,17 @@ See src/examples/random_baseline.py for a minimal end-to-end wiring example.
 """
 from __future__ import annotations
 
+import json
+
 import pandas as pd
+import yaml
 
 from .common.context import RunContext
 from .common.decision import Decision, write_decision
 from .common.manifest import verify_manifest
 from .common.review import load_review_decisions, make_review_queue, write_review_queue
 from .metrics.tracks import get_track
+from .privacy_gate import decide_case
 
 
 # ---------------------------------------------------------------- 01 load
@@ -35,6 +39,22 @@ def load(ctx: RunContext) -> dict:
         if ctx.config.get("strict_provenance", True):
             raise ValueError(f"provenance check failed ({len(problems)} problems), first: {problems[:3]}")
     data = {"manifest": pd.read_csv(manifest) if manifest.exists() else None}
+    if ctx.track == "t09":
+        case_dir = ctx.input_dir / "cases"
+        case_paths = sorted(case_dir.glob("*.json"))
+        if not case_paths:
+            raise ValueError(f"no privacy cases found in {case_dir}")
+        cases = [json.loads(path.read_text(encoding="utf-8")) for path in case_paths]
+        case_ids = [case.get("case_id") for case in cases]
+        if any(not case_id for case_id in case_ids) or len(case_ids) != len(set(case_ids)):
+            raise ValueError("privacy cases must have non-empty, unique case_id values")
+        policy_path = ctx.input_dir / ctx.param("policy_file", "rules/policy_example.yaml")
+        if not policy_path.is_file():
+            raise FileNotFoundError(f"privacy policy not found: {policy_path}")
+        policy = yaml.safe_load(policy_path.read_text(encoding="utf-8"))
+        if not isinstance(policy, dict):
+            raise ValueError(f"invalid privacy policy document: {policy_path}")
+        data.update(cases=cases, policy=policy)
     # TODO: load the tables/images your track needs, e.g.
     # data["images"] = pd.read_csv(ctx.input_dir / "images.csv")
     return data
@@ -43,6 +63,20 @@ def load(ctx: RunContext) -> dict:
 # ---------------------------------------------------------------- 02 process
 def process(ctx: RunContext, data: dict) -> pd.DataFrame:
     spec = get_track(ctx.track)
+    if ctx.track == "t09":
+        rows = []
+        for case in data["cases"]:
+            decision = decide_case(case, data["policy"])
+            rows.append({
+                "case_id": case["case_id"],
+                "market": case.get("market", ""),
+                **decision,
+                "reason": decision["reason_codes"].replace(";", "; "),
+                "review_required": decision["decision"] != "GO",
+                "policy_version": data["policy"].get("policy_version", "unspecified"),
+                "case_notes": case.get("ambiguity_notes", ""),
+            })
+        return pd.DataFrame(rows)
     raise NotImplementedError(
         f"Implement process() for {spec.track} ({spec.title}). It must produce a DataFrame with at least "
         f"{spec.pred_columns} (saved as out/{spec.pred_file}). See docs/tracks/{spec.track.upper()}.md"
@@ -79,6 +113,20 @@ def review(ctx: RunContext, scored: pd.DataFrame, queue: pd.DataFrame) -> pd.Dat
 
 # ---------------------------------------------------------------- 05 decide
 def decide(ctx: RunContext, final: pd.DataFrame) -> Decision:
+    if ctx.track == "t09":
+        statuses = set(final["decision"])
+        status = "HOLD" if "HOLD" in statuses else "REWORK" if "REWORK" in statuses else "GO"
+        reason_code = "CASE_RISK_REQUIRES_REVIEW" if status != "GO" else "NO_MATCHING_RISK"
+        return Decision(
+            status=status,
+            reason_code=reason_code,
+            reason=f"T09 policy review summary: {len(final)} cases; {int(final.review_required.sum())} require legal/privacy review.",
+            owner=ctx.config.get("owner", "TODO-owner"),
+            scope=ctx.track,
+            evidence=[str(ctx.input_dir / ctx.param("policy_file", "rules/policy_example.yaml")),
+                      str(ctx.output_dir / get_track(ctx.track).pred_file)],
+            metrics={"cases": len(final), "review_required": int(final.review_required.sum())},
+        )
     # TODO: replace with your policy (thresholds frozen BEFORE looking at eval results)
     return Decision(status="HOLD", reason_code="POLICY_NOT_IMPLEMENTED", reason="Decision policy not implemented yet",
                     owner=ctx.config.get("owner", "TODO-owner"), scope=ctx.track)
